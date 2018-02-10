@@ -53,10 +53,11 @@ func (g *Generator) startWorkers(wg *sync.WaitGroup) (chan<- workerInput, <-chan
 	inputs := make(chan workerInput, nworkers)
 	imgs := make(chan image.Image, nworkers)
 	errs := make(chan error, nworkers+1)
+	abort := make(chan struct{})
 	for i := 0; i < nworkers; i++ {
 		wg.Add(1)
 		w := worker{client: g.client, group: wg}
-		go w.Run(inputs, imgs, errs)
+		go w.Run(inputs, abort, imgs, errs)
 	}
 	go func() {
 		wg.Wait()

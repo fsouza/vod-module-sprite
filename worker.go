@@ -36,15 +36,24 @@ type worker struct {
 	group  *sync.WaitGroup
 }
 
-func (w *worker) Run(inputs <-chan workerInput, imgs chan<- image.Image, errs chan<- error) {
+func (w *worker) Run(inputs <-chan workerInput, abort <-chan struct{}, imgs chan<- image.Image, errs chan<- error) {
 	defer w.group.Done()
-	for input := range inputs {
-		img, err := w.process(input)
-		if err != nil {
-			errs <- err
+	for {
+		select {
+		case input, ok := <-inputs:
+			if !ok {
+				return
+			}
+
+			img, err := w.process(input)
+			if err != nil {
+				errs <- err
+				return
+			}
+			imgs <- img
+		case <-abort:
 			return
 		}
-		imgs <- img
 	}
 }
 
