@@ -3,13 +3,10 @@ package sprite
 import (
 	"bytes"
 	"errors"
-	"image"
-	"image/draw"
 	"image/jpeg"
 	"net/http"
 	"net/url"
 	"regexp"
-	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -32,13 +29,20 @@ type Generator struct {
 // for a video rendition.
 type GenSpriteOptions struct {
 	RenditionURL string
-	Duration     time.Duration
+	Start        time.Duration
+	End          time.Duration
 	Interval     time.Duration
 	Width        uint
 	Height       uint
 	JPEGQuality  int
 
 	prefix string
+}
+
+// N returns the number of items expected to be present in the generated
+// sprite.
+func (o *GenSpriteOptions) N() int {
+	return int((o.End - o.Start) / o.Interval)
 }
 
 // GenSprite generates the sprite for the given video.
@@ -61,16 +65,16 @@ func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 		return nil, err
 	}
 
-	outputs, err := g.collectOutputs(imgs, errs)
+	sprite, err := g.drawSprite(opts, imgs, errs)
 	if err != nil {
 		close(abort)
 		wg.Wait()
 		return nil, err
 	}
-	sort.Slice(outputs, func(i, j int) bool {
-		return outputs[i].timecode < outputs[j].timecode
-	})
-	return g.drawSprite(opts, outputs)
+
+	var buf bytes.Buffer
+	err = jpeg.Encode(&buf, sprite, &jpeg.Options{Quality: opts.JPEGQuality})
+	return buf.Bytes(), err
 }
 
 func (g *Generator) initGenerator() {
@@ -99,7 +103,7 @@ func (g *Generator) startWorkers(wg *sync.WaitGroup) (chan<- workerInput, chan<-
 
 func (g *Generator) sendInputs(opts GenSpriteOptions, inputs chan<- workerInput, errs <-chan error) error {
 	defer close(inputs)
-	for timecode := time.Duration(0); timecode < opts.Duration; timecode += opts.Interval {
+	for timecode := opts.Start; timecode < opts.End; timecode += opts.Interval {
 		input := workerInput{
 			prefix:   opts.prefix,
 			width:    opts.Width,
@@ -114,46 +118,6 @@ func (g *Generator) sendInputs(opts GenSpriteOptions, inputs chan<- workerInput,
 		}
 	}
 	return nil
-}
-
-func (g *Generator) collectOutputs(imgs <-chan workerOutput, errs <-chan error) ([]workerOutput, error) {
-	var outputs []workerOutput
-
-	for {
-		select {
-		case output, ok := <-imgs:
-			if !ok {
-				return outputs, nil
-			}
-			outputs = append(outputs, output)
-		case err := <-errs:
-			return nil, err
-		}
-	}
-}
-
-func (g *Generator) drawSprite(opts GenSpriteOptions, outputs []workerOutput) ([]byte, error) {
-	if len(outputs) < 1 {
-		return nil, nil
-	}
-
-	sample := outputs[0].img
-	width := sample.Bounds().Dx()
-	height := sample.Bounds().Dy()
-	spriteRect := image.Rect(0, 0, width, height*len(outputs))
-	sprite := image.NewRGBA(spriteRect)
-
-	sp := image.Pt(0, 0)
-	r := image.Rect(0, 0, width, height)
-	for _, output := range outputs {
-		draw.Draw(sprite, r, output.img, image.Point{0, 0}, draw.Src)
-		sp = sp.Add(image.Pt(0, height))
-		r = image.Rectangle{sp, sp.Add(image.Pt(width, height))}
-	}
-
-	var buf bytes.Buffer
-	err := jpeg.Encode(&buf, sprite, &jpeg.Options{Quality: opts.JPEGQuality})
-	return buf.Bytes(), err
 }
 
 func (g *Generator) videoPackagerPrefix(renditionURL string) (string, error) {
