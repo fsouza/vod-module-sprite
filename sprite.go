@@ -42,7 +42,7 @@ type GenSpriteOptions struct {
 // N returns the number of items expected to be present in the generated
 // sprite.
 func (o *GenSpriteOptions) N() int {
-	return int((o.End - o.Start) / o.Interval)
+	return int((o.End-o.Start)/o.Interval) + 1
 }
 
 // GenSprite generates the sprite for the given video.
@@ -103,7 +103,7 @@ func (g *Generator) startWorkers(wg *sync.WaitGroup) (chan<- workerInput, chan<-
 
 func (g *Generator) sendInputs(opts GenSpriteOptions, inputs chan<- workerInput, errs <-chan error) error {
 	defer close(inputs)
-	for timecode := opts.Start; timecode < opts.End; timecode += opts.Interval {
+	for timecode := opts.Start; timecode <= opts.End; timecode += opts.Interval {
 		input := workerInput{
 			prefix:   opts.prefix,
 			width:    opts.Width,
