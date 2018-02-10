@@ -42,7 +42,7 @@ func (g *Generator) initSprite(input drawInput) *image.RGBA {
 	return image.NewRGBA(spriteRect)
 }
 
-func (g *Generator) draw(sprite *image.RGBA, input drawInput) {
+func (g *Generator) draw(sprite draw.Image, input drawInput) {
 	width := input.img.Bounds().Dx()
 	height := input.img.Bounds().Dy()
 	sp := image.Pt(0, height*input.position)
