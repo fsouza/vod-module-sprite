@@ -3,11 +3,14 @@ package sprite
 import (
 	"errors"
 	"image"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/hashicorp/go-cleanhttp"
 )
 
 var mp4Regexp = regexp.MustCompile(`\.mp4$`)
@@ -16,6 +19,9 @@ var mp4Regexp = regexp.MustCompile(`\.mp4$`)
 type Generator struct {
 	VideoPackagerEndpoint string
 	MaxWorkers            uint
+
+	client *http.Client
+	o      sync.Once
 }
 
 // GenSpriteOptions is the set of options that control the sprite generation
@@ -32,7 +38,14 @@ type GenSpriteOptions struct {
 //
 // It takes the rendition URL, the duration and the interval.
 func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
+	g.initGenerator()
 	return nil, nil
+}
+
+func (g *Generator) initGenerator() {
+	g.o.Do(func() {
+		g.client = cleanhttp.DefaultPooledClient()
+	})
 }
 
 func (g *Generator) startWorkers(wg *sync.WaitGroup) (chan<- workerInput, <-chan image.Image, <-chan error) {
@@ -42,7 +55,8 @@ func (g *Generator) startWorkers(wg *sync.WaitGroup) (chan<- workerInput, <-chan
 	errs := make(chan error, nworkers+1)
 	for i := 0; i < nworkers; i++ {
 		wg.Add(1)
-		go worker(inputs, imgs, errs, wg)
+		w := worker{client: g.client, group: wg}
+		go w.Run(inputs, imgs, errs)
 	}
 	go func() {
 		wg.Wait()

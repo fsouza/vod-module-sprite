@@ -3,6 +3,9 @@ package sprite
 import (
 	"fmt"
 	"image"
+	"image/jpeg"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -28,6 +31,36 @@ func (i *workerInput) url() string {
 	return fmt.Sprintf("%s%s.jpg", i.prefix, strings.Join(suffixParts, "-"))
 }
 
-func worker(inputs <-chan workerInput, imgs chan<- image.Image, errs chan<- error, wg *sync.WaitGroup) {
-	defer wg.Done()
+type worker struct {
+	client *http.Client
+	group  *sync.WaitGroup
+}
+
+func (w *worker) Run(inputs <-chan workerInput, imgs chan<- image.Image, errs chan<- error) {
+	defer w.group.Done()
+	for input := range inputs {
+		img, err := w.process(input)
+		if err != nil {
+			errs <- err
+			return
+		}
+		imgs <- img
+	}
+}
+
+func (w *worker) process(input workerInput) (image.Image, error) {
+	thumbURL := input.url()
+	resp, err := w.client.Get(thumbURL)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("invalid response from video-packager: %d - %s", resp.StatusCode, data)
+	}
+	return jpeg.Decode(resp.Body)
 }
