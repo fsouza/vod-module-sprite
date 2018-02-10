@@ -79,7 +79,7 @@ func TestGenSprite(t *testing.T) {
 	const spritesFolder = "testdata"
 	packager := startFakePackager(spritesFolder)
 	defer packager.stop()
-	generator := Generator{Translator: packager.translate, MaxWorkers: 32}
+	generator := Generator{Translator: packager.translate, MaxWorkers: 4}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

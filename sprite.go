@@ -64,7 +64,7 @@ func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 	}
 	opts.prefix = prefix
 	var wg sync.WaitGroup
-	inputs, abort, imgs, errs := g.startWorkers(&wg)
+	inputs, abort, imgs, errs := g.startWorkers(opts, &wg)
 
 	err = g.sendInputs(opts, inputs, errs)
 	if err != nil {
@@ -91,8 +91,11 @@ func (g *Generator) initGenerator() {
 	})
 }
 
-func (g *Generator) startWorkers(wg *sync.WaitGroup) (chan<- workerInput, chan<- struct{}, <-chan workerOutput, <-chan error) {
-	nworkers := int(g.MaxWorkers)
+func (g *Generator) startWorkers(opts GenSpriteOptions, wg *sync.WaitGroup) (chan<- workerInput, chan<- struct{}, <-chan workerOutput, <-chan error) {
+	nworkers := opts.N()/2 + 1
+	if nworkers > int(g.MaxWorkers) {
+		nworkers = int(g.MaxWorkers)
+	}
 	inputs := make(chan workerInput, nworkers)
 	imgs := make(chan workerOutput, nworkers)
 	errs := make(chan error, nworkers+1)
