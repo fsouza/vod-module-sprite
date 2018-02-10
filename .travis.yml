@@ -3,5 +3,5 @@ sudo: false
 go:
   - 1.9.x
   - 1.10rc2
-script: go test -coverprofile=profile.out -covermode=atomic
+script: go test -coverprofile=coverage.txt -covermode=atomic
 after_success: bash <(curl -s https://codecov.io/bash)
