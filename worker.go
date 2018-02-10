@@ -31,12 +31,17 @@ func (i *workerInput) url() string {
 	return fmt.Sprintf("%s%s.jpg", i.prefix, strings.Join(suffixParts, "-"))
 }
 
+type workerOutput struct {
+	img      image.Image
+	timecode time.Duration
+}
+
 type worker struct {
 	client *http.Client
 	group  *sync.WaitGroup
 }
 
-func (w *worker) Run(inputs <-chan workerInput, abort <-chan struct{}, imgs chan<- image.Image, errs chan<- error) {
+func (w *worker) Run(inputs <-chan workerInput, abort <-chan struct{}, imgs chan<- workerOutput, errs chan<- error) {
 	defer w.group.Done()
 	for {
 		select {
@@ -50,7 +55,7 @@ func (w *worker) Run(inputs <-chan workerInput, abort <-chan struct{}, imgs chan
 				errs <- err
 				return
 			}
-			imgs <- img
+			imgs <- workerOutput{img: img, timecode: input.timecode}
 		case <-abort:
 			return
 		}
