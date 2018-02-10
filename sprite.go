@@ -2,39 +2,43 @@ package sprite
 
 import (
 	"bytes"
-	"errors"
 	"image/jpeg"
 	"net/http"
-	"net/url"
-	"regexp"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/hashicorp/go-cleanhttp"
 )
 
-var mp4Regexp = regexp.MustCompile(`\.mp4$`)
-
 // Generator generates sprites for videos using the video-packager.
 type Generator struct {
-	VideoPackagerEndpoint string
-	MaxWorkers            uint
+	Translator VideoURLTranslator
+	MaxWorkers uint
 
 	client *http.Client
 	o      sync.Once
 }
 
+// VideoURLTranslator is a function that translates a video URL into a
+// nginx-vod-module thumb prefix URL.
+//
+// A thumb prefix URL is a URL that doesn't include the suffix
+// `thumb-{timecode}-w{width}-h{height}`.
+//
+// The Generator will use this function to derive the final URL of the
+// thumbnail asset.
+type VideoURLTranslator func(string) (string, error)
+
 // GenSpriteOptions is the set of options that control the sprite generation
 // for a video rendition.
 type GenSpriteOptions struct {
-	RenditionURL string
-	Start        time.Duration
-	End          time.Duration
-	Interval     time.Duration
-	Width        uint
-	Height       uint
-	JPEGQuality  int
+	VideoURL    string
+	Start       time.Duration
+	End         time.Duration
+	Interval    time.Duration
+	Width       uint
+	Height      uint
+	JPEGQuality int
 
 	prefix string
 }
@@ -50,7 +54,7 @@ func (o *GenSpriteOptions) N() int {
 // It takes the rendition URL, the duration and the interval.
 func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 	g.initGenerator()
-	prefix, err := g.videoPackagerPrefix(opts.RenditionURL)
+	prefix, err := g.Translator(opts.VideoURL)
 	if err != nil {
 		return nil, err
 	}
@@ -118,21 +122,4 @@ func (g *Generator) sendInputs(opts GenSpriteOptions, inputs chan<- workerInput,
 		}
 	}
 	return nil
-}
-
-func (g *Generator) videoPackagerPrefix(renditionURL string) (string, error) {
-	rurl, err := url.Parse(renditionURL)
-	if err != nil {
-		return "", err
-	}
-	path := rurl.Path
-	if !strings.HasPrefix(path, "/video/") {
-		return "", errors.New("invalid rendition: path doesn't start with /video/")
-	}
-	if !mp4Regexp.MatchString(path) {
-		return "", errors.New("invalid rendition: not an mp4 file")
-	}
-	path = strings.Replace(path, "/video/", "/video/t/", 1)
-	path = mp4Regexp.ReplaceAllString(path, "/")
-	return strings.TrimRight(g.VideoPackagerEndpoint, "/") + path, nil
 }

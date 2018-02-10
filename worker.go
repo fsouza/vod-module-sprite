@@ -28,7 +28,7 @@ func (i *workerInput) url() string {
 	if i.height > 0 {
 		suffixParts = append(suffixParts, fmt.Sprintf("h%d", i.height))
 	}
-	return fmt.Sprintf("%s%s.jpg", i.prefix, strings.Join(suffixParts, "-"))
+	return fmt.Sprintf("%s/%s.jpg", strings.TrimRight(i.prefix, "/"), strings.Join(suffixParts, "-"))
 }
 
 type workerOutput struct {

@@ -2,7 +2,6 @@ package sprite
 
 import (
 	"bytes"
-	"errors"
 	"image"
 	"image/jpeg"
 	"math"
@@ -26,48 +25,48 @@ func TestGenSprite(t *testing.T) {
 		{
 			"full sprite",
 			GenSpriteOptions{
-				RenditionURL: "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
-				Start:        0,
-				End:          18 * time.Second,
-				Interval:     2 * time.Second,
-				Height:       72,
-				JPEGQuality:  testJPEGQuality,
+				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:       0,
+				End:         18 * time.Second,
+				Interval:    2 * time.Second,
+				Height:      72,
+				JPEGQuality: testJPEGQuality,
 			},
 			"sprite-full.jpg",
 		},
 		{
 			"partial sprite - just the start",
 			GenSpriteOptions{
-				RenditionURL: "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
-				Start:        0,
-				End:          14 * time.Second,
-				Interval:     2 * time.Second,
-				Height:       72,
-				JPEGQuality:  testJPEGQuality,
+				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:       0,
+				End:         14 * time.Second,
+				Interval:    2 * time.Second,
+				Height:      72,
+				JPEGQuality: testJPEGQuality,
 			},
 			"sprite-0-14000.jpg",
 		},
 		{
 			"partial sprite - just the end",
 			GenSpriteOptions{
-				RenditionURL: "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
-				Start:        4 * time.Second,
-				End:          18 * time.Second,
-				Interval:     2 * time.Second,
-				Height:       72,
-				JPEGQuality:  testJPEGQuality,
+				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:       4 * time.Second,
+				End:         18 * time.Second,
+				Interval:    2 * time.Second,
+				Height:      72,
+				JPEGQuality: testJPEGQuality,
 			},
 			"sprite-4000.jpg",
 		},
 		{
 			"partial sprite - middle",
 			GenSpriteOptions{
-				RenditionURL: "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
-				Start:        4 * time.Second,
-				End:          14 * time.Second,
-				Interval:     2 * time.Second,
-				Height:       72,
-				JPEGQuality:  testJPEGQuality,
+				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:       4 * time.Second,
+				End:         14 * time.Second,
+				Interval:    2 * time.Second,
+				Height:      72,
+				JPEGQuality: testJPEGQuality,
 			},
 			"sprite-4000-14000.jpg",
 		},
@@ -76,7 +75,7 @@ func TestGenSprite(t *testing.T) {
 	const spritesFolder = "testdata"
 	packager := startFakePackager(spritesFolder)
 	defer packager.stop()
-	generator := Generator{VideoPackagerEndpoint: packager.url(), MaxWorkers: 32}
+	generator := Generator{Translator: packager.translate, MaxWorkers: 32}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -111,21 +110,21 @@ func TestGenSpriteErrors(t *testing.T) {
 		{
 			"invalid timecodes",
 			GenSpriteOptions{
-				RenditionURL: "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
-				Start:        30 * time.Second,
-				End:          50 * time.Second,
-				Interval:     2 * time.Second,
-				Height:       72,
+				VideoURL: "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:    30 * time.Second,
+				End:      50 * time.Second,
+				Interval: 2 * time.Second,
+				Height:   72,
 			},
 		},
 		{
 			"invalid rendition",
 			GenSpriteOptions{
-				RenditionURL: "/videos/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
-				Start:        4 * time.Second,
-				End:          14 * time.Second,
-				Interval:     2 * time.Second,
-				Height:       72,
+				VideoURL: "/videos/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:    4 * time.Second,
+				End:      14 * time.Second,
+				Interval: 2 * time.Second,
+				Height:   72,
 			},
 		},
 	}
@@ -133,7 +132,7 @@ func TestGenSpriteErrors(t *testing.T) {
 	const spritesFolder = "testdata"
 	packager := startFakePackager(spritesFolder)
 	defer packager.stop()
-	generator := Generator{VideoPackagerEndpoint: packager.url(), MaxWorkers: 32}
+	generator := Generator{Translator: packager.translate, MaxWorkers: 32}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -185,74 +184,6 @@ func TestGenSpriteOptionsN(t *testing.T) {
 			n := test.input.N()
 			if n != test.expected {
 				t.Errorf("wrong value\nwant %d\ngot  %d", test.expected, n)
-			}
-		})
-	}
-}
-
-func TestVideoPackagerPrefix(t *testing.T) {
-	var tests = []struct {
-		name      string
-		endpoint  string
-		rendition string
-		expected  string
-		errMsg    string
-	}{
-		{
-			"regular url",
-			"https://video-packager.example.com",
-			"https://vp.nyt.com/video/2017/07/11/73302_1_12trumpjr-emails_wg_240p.mp4",
-			"https://video-packager.example.com/video/t/2017/07/11/73302_1_12trumpjr-emails_wg_240p/",
-			"",
-		},
-		{
-			"extra slashes on endpoint",
-			"https://video-packager.example.com////",
-			"https://vp.nyt.com/video/2017/07/11/73302_1_12trumpjr-emails_wg_240p.mp4",
-			"https://video-packager.example.com/video/t/2017/07/11/73302_1_12trumpjr-emails_wg_240p/",
-			"",
-		},
-		{
-			"rendition path",
-			"https://video-packager.example.com",
-			"/video/2017/07/11/73302_1_12trumpjr-emails_wg_240p.mp4",
-			"https://video-packager.example.com/video/t/2017/07/11/73302_1_12trumpjr-emails_wg_240p/",
-			"",
-		},
-		{
-			"invalid rendition url - not /video/ prefix",
-			"https://video-packager.example.com",
-			"https://vp.nyt.com/videos/2017/07/11/73302_1_12trumpjr-emails_wg_240p.mp4",
-			"",
-			"invalid rendition: path doesn't start with /video/",
-		},
-		{
-			"invalid rendition url - not mp4",
-			"https://video-packager.example.com",
-			"https://vp.nyt.com/video/2017/07/11/73302_1_12trumpjr-emails_wg_480p.webm",
-			"",
-			"invalid rendition: not an mp4 file",
-		},
-		{
-			"invalid url",
-			"https://video-packager.example.com",
-			":video",
-			"",
-			"parse :video: missing protocol scheme",
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			generator := Generator{VideoPackagerEndpoint: test.endpoint}
-			prefix, err := generator.videoPackagerPrefix(test.rendition)
-			if err == nil {
-				err = errors.New("")
-			}
-			if err.Error() != test.errMsg {
-				t.Errorf("wrong error\nwant %q\ngot  %q", test.errMsg, err.Error())
-			}
-			if prefix != test.expected {
-				t.Errorf("wrong prefix\nwant %q\ngot  %q", test.expected, prefix)
 			}
 		})
 	}
