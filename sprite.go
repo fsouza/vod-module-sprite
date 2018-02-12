@@ -53,9 +53,8 @@ func (o *GenSpriteOptions) N() int {
 	return int((o.End-o.Start)/o.Interval) + 1
 }
 
-// GenSprite generates the sprite for the given video.
-//
-// It takes the rendition URL, the duration and the interval.
+// GenSprite generates the sprite for the given video, using the specified
+// options.
 func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 	g.initGenerator()
 	prefix, err := g.Translator(opts.VideoURL)
