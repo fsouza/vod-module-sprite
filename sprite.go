@@ -101,7 +101,7 @@ func (g *Generator) startWorkers(opts GenSpriteOptions, wg *sync.WaitGroup) (cha
 		nworkers = int(g.MaxWorkers)
 	}
 	inputs := make(chan workerInput, nworkers)
-	imgs := make(chan workerOutput, nworkers)
+	imgs := make(chan workerOutput, opts.N()+1)
 	errs := make(chan error, nworkers+1)
 	abort := make(chan struct{})
 	for i := 0; i < nworkers; i++ {
