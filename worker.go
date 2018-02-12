@@ -60,7 +60,15 @@ func (w *worker) Run(ctx context.Context, inputs <-chan workerInput, abort <-cha
 				errs <- err
 				return
 			}
-			imgs <- workerOutput{img: img, timecode: input.timecode}
+
+			select {
+			case imgs <- workerOutput{img: img, timecode: input.timecode}:
+			case <-ctx.Done():
+				errs <- ctx.Err()
+				return
+			case <-abort:
+				return
+			}
 		case <-ctx.Done():
 			errs <- ctx.Err()
 			return
