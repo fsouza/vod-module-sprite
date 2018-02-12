@@ -15,7 +15,7 @@ type drawInput struct {
 	total    int
 }
 
-func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, errs <-chan error) (image.Image, error) {
+func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, workersErrs <-chan error, inputErrs <-chan error) (image.Image, error) {
 	var sprite *image.RGBA
 
 	for {
@@ -33,10 +33,12 @@ func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, 
 				sprite = g.initSprite(input)
 			}
 			g.draw(sprite, input)
+		case err := <-workersErrs:
+			return nil, err
+		case err := <-inputErrs:
+			return nil, err
 		case <-opts.Context.Done():
 			return nil, opts.Context.Err()
-		case err := <-errs:
-			return nil, err
 		}
 	}
 }

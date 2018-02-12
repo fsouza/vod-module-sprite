@@ -68,18 +68,14 @@ func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 	}
 	opts.prefix = prefix
 	var wg sync.WaitGroup
-	inputs, abort, imgs, errs := g.startWorkers(opts, &wg)
+	inputs, workersAbort, imgs, workersErrs := g.startWorkers(opts, &wg)
 
-	err = g.sendInputs(opts, inputs, errs)
-	if err != nil {
-		close(abort)
-		wg.Wait()
-		return nil, err
-	}
+	inputAbort, inputErrs := g.startSendingInputs(opts, inputs, workersErrs)
 
-	sprite, err := g.drawSprite(opts, imgs, errs)
+	sprite, err := g.drawSprite(opts, imgs, workersErrs, inputErrs)
 	if err != nil {
-		close(abort)
+		close(workersAbort)
+		close(inputAbort)
 		wg.Wait()
 		return nil, err
 	}
@@ -101,7 +97,7 @@ func (g *Generator) startWorkers(opts GenSpriteOptions, wg *sync.WaitGroup) (cha
 		nworkers = int(g.MaxWorkers)
 	}
 	inputs := make(chan workerInput, nworkers)
-	imgs := make(chan workerOutput, opts.N()+1)
+	imgs := make(chan workerOutput, nworkers*2)
 	errs := make(chan error, nworkers+1)
 	abort := make(chan struct{})
 	for i := 0; i < nworkers; i++ {
@@ -116,23 +112,37 @@ func (g *Generator) startWorkers(opts GenSpriteOptions, wg *sync.WaitGroup) (cha
 	return inputs, abort, imgs, errs
 }
 
-func (g *Generator) sendInputs(opts GenSpriteOptions, inputs chan<- workerInput, errs <-chan error) error {
-	defer close(inputs)
-	for timecode := opts.Start; timecode <= opts.End; timecode += opts.Interval {
-		input := workerInput{
-			prefix:   opts.prefix,
-			width:    opts.Width,
-			height:   opts.Height,
-			timecode: timecode,
-		}
+// startSendingInputs sends the images into the inputs channel.
+//
+// It starts a goroutine in background that. Any error that happens in the
+// process is reported through the errors channel.
+//
+// The method also returns an abort channel that can be used to abort the process.
+func (g *Generator) startSendingInputs(opts GenSpriteOptions, inputs chan<- workerInput, workerErrs <-chan error) (chan<- struct{}, <-chan error) {
+	errs := make(chan error, 1)
+	abort := make(chan struct{})
+	go func() {
+		defer close(inputs)
+		for timecode := opts.Start; timecode <= opts.End; timecode += opts.Interval {
+			input := workerInput{
+				prefix:   opts.prefix,
+				width:    opts.Width,
+				height:   opts.Height,
+				timecode: timecode,
+			}
 
-		select {
-		case inputs <- input:
-		case <-opts.Context.Done():
-			return opts.Context.Err()
-		case err := <-errs:
-			return err
+			select {
+			case inputs <- input:
+			case <-abort:
+				return
+			case <-opts.Context.Done():
+				errs <- opts.Context.Err()
+				return
+			case err := <-workerErrs:
+				errs <- err
+				return
+			}
 		}
-	}
-	return nil
+	}()
+	return abort, errs
 }
