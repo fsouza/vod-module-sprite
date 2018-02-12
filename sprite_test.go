@@ -6,6 +6,7 @@ package sprite
 
 import (
 	"bytes"
+	"context"
 	"image"
 	"image/jpeg"
 	"math"
@@ -107,6 +108,9 @@ func TestGenSprite(t *testing.T) {
 }
 
 func TestGenSpriteErrors(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.TODO())
+	cancel()
+
 	var tests = []struct {
 		name  string
 		input GenSpriteOptions
@@ -125,6 +129,17 @@ func TestGenSpriteErrors(t *testing.T) {
 			"invalid rendition",
 			GenSpriteOptions{
 				VideoURL: "/videos/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:    4 * time.Second,
+				End:      14 * time.Second,
+				Interval: 2 * time.Second,
+				Height:   72,
+			},
+		},
+		{
+			"context cancelation",
+			GenSpriteOptions{
+				Context:  ctx,
+				VideoURL: "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Start:    4 * time.Second,
 				End:      14 * time.Second,
 				Interval: 2 * time.Second,

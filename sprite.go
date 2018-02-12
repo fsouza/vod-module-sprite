@@ -6,6 +6,7 @@ package sprite
 
 import (
 	"bytes"
+	"context"
 	"image/jpeg"
 	"net/http"
 	"sync"
@@ -36,6 +37,7 @@ type VideoURLTranslator func(string) (string, error)
 // GenSpriteOptions is the set of options that control the sprite generation
 // for a video rendition.
 type GenSpriteOptions struct {
+	Context     context.Context
 	VideoURL    string
 	Start       time.Duration
 	End         time.Duration
@@ -57,6 +59,9 @@ func (o *GenSpriteOptions) N() int {
 // options.
 func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 	g.initGenerator()
+	if opts.Context == nil {
+		opts.Context = context.Background()
+	}
 	prefix, err := g.Translator(opts.VideoURL)
 	if err != nil {
 		return nil, err
@@ -102,7 +107,7 @@ func (g *Generator) startWorkers(opts GenSpriteOptions, wg *sync.WaitGroup) (cha
 	for i := 0; i < nworkers; i++ {
 		wg.Add(1)
 		w := worker{client: g.client, group: wg}
-		go w.Run(inputs, abort, imgs, errs)
+		go w.Run(opts.Context, inputs, abort, imgs, errs)
 	}
 	go func() {
 		wg.Wait()
@@ -123,6 +128,8 @@ func (g *Generator) sendInputs(opts GenSpriteOptions, inputs chan<- workerInput,
 
 		select {
 		case inputs <- input:
+		case <-opts.Context.Done():
+			return opts.Context.Err()
 		case err := <-errs:
 			return err
 		}

@@ -33,6 +33,8 @@ func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, 
 				sprite = g.initSprite(input)
 			}
 			g.draw(sprite, input)
+		case <-opts.Context.Done():
+			return nil, opts.Context.Err()
 		case err := <-errs:
 			return nil, err
 		}

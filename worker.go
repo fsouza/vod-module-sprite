@@ -5,6 +5,7 @@
 package sprite
 
 import (
+	"context"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -45,7 +46,7 @@ type worker struct {
 	group  *sync.WaitGroup
 }
 
-func (w *worker) Run(inputs <-chan workerInput, abort <-chan struct{}, imgs chan<- workerOutput, errs chan<- error) {
+func (w *worker) Run(ctx context.Context, inputs <-chan workerInput, abort <-chan struct{}, imgs chan<- workerOutput, errs chan<- error) {
 	defer w.group.Done()
 	for {
 		select {
@@ -60,6 +61,9 @@ func (w *worker) Run(inputs <-chan workerInput, abort <-chan struct{}, imgs chan
 				return
 			}
 			imgs <- workerOutput{img: img, timecode: input.timecode}
+		case <-ctx.Done():
+			errs <- ctx.Err()
+			return
 		case <-abort:
 			return
 		}
