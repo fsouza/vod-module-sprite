@@ -42,6 +42,7 @@ type GenSpriteOptions struct {
 	Start       time.Duration
 	End         time.Duration
 	Interval    time.Duration
+	Columns     uint
 	Width       uint
 	Height      uint
 	JPEGQuality int
@@ -61,6 +62,9 @@ func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 	g.initGenerator()
 	if opts.Context == nil {
 		opts.Context = context.Background()
+	}
+	if opts.Columns == 0 {
+		opts.Columns = 1
 	}
 	prefix, err := g.Translator(opts.VideoURL)
 	if err != nil {
