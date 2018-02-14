@@ -8,5 +8,5 @@ install:
   - dep ensure -v
 script:
   - golint -set_exit_status
-  - go test -coverprofile=coverage.txt -covermode=atomic
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
 after_success: bash <(curl -s https://codecov.io/bash)
