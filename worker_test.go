@@ -26,6 +26,17 @@ func TestWorkerInputURL(t *testing.T) {
 			"https://video-packager.example.com/video/t/something/thumb-2000-w128-h72.jpg",
 		},
 		{
+			"duration, width and height + black bars",
+			workerInput{
+				prefix:       "https://video-packager.example.com/video/t/something/",
+				width:        128,
+				height:       72,
+				timecode:     2 * time.Second,
+				addBlackBars: true,
+			},
+			"https://video-packager.example.com/video/t/something/thumb-2000-h72.jpg",
+		},
+		{
 			"non-exact duration, width and height",
 			workerInput{
 				prefix:   "https://video-packager.example.com/video/t/something/",

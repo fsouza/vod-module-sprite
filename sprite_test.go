@@ -9,6 +9,7 @@ import (
 	"context"
 	"image"
 	"image/jpeg"
+	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -18,8 +19,8 @@ import (
 
 func TestGenSprite(t *testing.T) {
 	const (
-		testJPEGQuality = 80
-		maxDiff         = int64(1e6)
+		testJPEGQuality = 100
+		maxDiff         = int64(11e5)
 	)
 
 	var tests = []struct {
@@ -40,6 +41,20 @@ func TestGenSprite(t *testing.T) {
 			"sprite-full.jpg",
 		},
 		{
+			"full sprite - vertical with black bars",
+			GenSpriteOptions{
+				VideoURL:        "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:           0,
+				End:             18 * time.Second,
+				Interval:        2 * time.Second,
+				Width:           200,
+				Height:          72,
+				JPEGQuality:     testJPEGQuality,
+				KeepAspectRatio: true,
+			},
+			"sprite-full-blackbars.jpg",
+		},
+		{
 			"full sprite - horizontal",
 			GenSpriteOptions{
 				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
@@ -51,6 +66,21 @@ func TestGenSprite(t *testing.T) {
 				JPEGQuality: testJPEGQuality,
 			},
 			"sprite-full-horizontal.jpg",
+		},
+		{
+			"full sprite - horizontal with black bars",
+			GenSpriteOptions{
+				VideoURL:        "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Columns:         10,
+				Start:           0,
+				End:             18 * time.Second,
+				Interval:        2 * time.Second,
+				Width:           200,
+				Height:          72,
+				JPEGQuality:     testJPEGQuality,
+				KeepAspectRatio: true,
+			},
+			"sprite-full-blackbars-horizontal.jpg",
 		},
 		{
 			"full sprite - 2 columns",
@@ -140,7 +170,13 @@ func TestGenSprite(t *testing.T) {
 			}
 			diff := imageDiff(sprite, expectedSprite)
 			if int64(math.Abs(float64(diff))) > maxDiff {
+				if f, err := ioutil.TempFile("", ""); err == nil {
+					f.Write(data)
+					f.Close()
+					t.Logf("output sprite saved to: %v", f.Name())
+				}
 				t.Errorf("images are too different\nmax diff: %d\ngot diff: %d", maxDiff, diff)
+				t.Errorf("expectedSprite: %v", test.expectedFile)
 			}
 		})
 	}

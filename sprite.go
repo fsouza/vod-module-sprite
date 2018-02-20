@@ -47,6 +47,17 @@ type GenSpriteOptions struct {
 	Height      uint
 	JPEGQuality int
 
+	// Whether to keep the original aspect ratio on each item sprite item.
+	//
+	// When set to true, the library will not stretch the items, wrapping
+	// each thumbnail with vertical bars. This setting is only used when
+	// both Width and Height are specified.
+	//
+	// When both width and height are specified and KeepAspectRatio is set
+	// to true, the plugin will use the height as the reference, meaning
+	// that it can only add vertical bars, not horizontal bars.
+	KeepAspectRatio bool
+
 	prefix string
 }
 
@@ -90,9 +101,7 @@ func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 }
 
 func (g *Generator) initGenerator() {
-	g.o.Do(func() {
-		g.client = cleanhttp.DefaultPooledClient()
-	})
+	g.o.Do(func() { g.client = cleanhttp.DefaultPooledClient() })
 }
 
 func (g *Generator) startWorkers(opts GenSpriteOptions, wg *sync.WaitGroup) (chan<- workerInput, chan<- struct{}, <-chan workerOutput, <-chan error) {
@@ -127,12 +136,14 @@ func (g *Generator) startSendingInputs(opts GenSpriteOptions, inputs chan<- work
 	abort := make(chan struct{})
 	go func() {
 		defer close(inputs)
+		blackBars := opts.KeepAspectRatio && opts.Width != 0 && opts.Height != 0
 		for timecode := opts.Start; timecode <= opts.End; timecode += opts.Interval {
 			input := workerInput{
-				prefix:   opts.prefix,
-				width:    opts.Width,
-				height:   opts.Height,
-				timecode: timecode,
+				prefix:       opts.prefix,
+				width:        opts.Width,
+				height:       opts.Height,
+				timecode:     timecode,
+				addBlackBars: blackBars,
 			}
 
 			select {

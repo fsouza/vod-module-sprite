@@ -18,16 +18,17 @@ import (
 )
 
 type workerInput struct {
-	prefix   string
-	timecode time.Duration
-	width    uint
-	height   uint
+	prefix       string
+	timecode     time.Duration
+	width        uint
+	height       uint
+	addBlackBars bool
 }
 
 func (i *workerInput) url() string {
 	milli := i.timecode.Truncate(time.Millisecond)
 	suffixParts := []string{"thumb", strconv.FormatInt(int64(milli/time.Millisecond), 10)}
-	if i.width > 0 {
+	if i.width > 0 && !i.addBlackBars {
 		suffixParts = append(suffixParts, fmt.Sprintf("w%d", i.width))
 	}
 	if i.height > 0 {
@@ -37,8 +38,8 @@ func (i *workerInput) url() string {
 }
 
 type workerOutput struct {
-	img      image.Image
-	timecode time.Duration
+	img   image.Image
+	input workerInput
 }
 
 type worker struct {
@@ -62,7 +63,7 @@ func (w *worker) Run(ctx context.Context, inputs <-chan workerInput, abort <-cha
 			}
 
 			select {
-			case imgs <- workerOutput{img: img, timecode: input.timecode}:
+			case imgs <- workerOutput{img: img, input: input}:
 			case <-ctx.Done():
 				errs <- ctx.Err()
 				return
