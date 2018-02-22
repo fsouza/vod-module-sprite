@@ -5,7 +5,7 @@ go:
   - "1.10"
   - tip
 install:
-  - go get -v github.com/golang/dep/cmd/dep github.com/golang/lint/golint
+  - go get -v github.com/golang/dep/cmd/dep golang.org/x/lint/golint
   - dep ensure -v
 script:
   - golint -set_exit_status
