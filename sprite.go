@@ -61,9 +61,9 @@ type GenSpriteOptions struct {
 	prefix string
 }
 
-// N returns the number of items expected to be present in the generated
+// n returns the number of items expected to be present in the generated
 // sprite.
-func (o *GenSpriteOptions) N() int {
+func (o *GenSpriteOptions) n() int {
 	return int((o.End-o.Start)/o.Interval) + 1
 }
 
@@ -105,7 +105,7 @@ func (g *Generator) initGenerator() {
 }
 
 func (g *Generator) startWorkers(opts GenSpriteOptions, wg *sync.WaitGroup) (chan<- workerInput, chan<- struct{}, <-chan workerOutput, <-chan error) {
-	nworkers := opts.N()/2 + 1
+	nworkers := opts.n()/2 + 1
 	if nworkers > int(g.MaxWorkers) {
 		nworkers = int(g.MaxWorkers)
 	}

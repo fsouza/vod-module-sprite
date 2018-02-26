@@ -275,7 +275,7 @@ func TestGenSpriteOptionsN(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			n := test.input.N()
+			n := test.input.n()
 			if n != test.expected {
 				t.Errorf("wrong value\nwant %d\ngot  %d", test.expected, n)
 			}

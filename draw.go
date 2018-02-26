@@ -31,10 +31,10 @@ func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, 
 	var drawer spriteDrawer
 
 	columns := int(opts.Columns)
-	if n := opts.N(); columns > n {
+	if n := opts.n(); columns > n {
 		columns = n
 	}
-	rows := int(math.Ceil(float64(opts.N()) / float64(columns)))
+	rows := int(math.Ceil(float64(opts.n()) / float64(columns)))
 
 	for {
 		select {
