@@ -28,7 +28,7 @@ func (i *drawInput) dimensions() (width, height int) {
 }
 
 func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, workersErrs <-chan error, inputErrs <-chan error) (image.Image, error) {
-	var sprite *image.RGBA
+	var drawer spriteDrawer
 
 	columns := int(opts.Columns)
 	if n := opts.N(); columns > n {
@@ -40,7 +40,7 @@ func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, 
 		select {
 		case output, ok := <-imgs:
 			if !ok {
-				return sprite, nil
+				return drawer.sprite, nil
 			}
 			pos := int((output.input.timecode - opts.Start) / opts.Interval)
 			ypos := pos / columns
@@ -52,10 +52,7 @@ func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, 
 				rows:         rows,
 				columns:      columns,
 			}
-			if sprite == nil {
-				sprite = g.initSprite(opts, input)
-			}
-			g.draw(sprite, input)
+			drawer.draw(input)
 		case err := <-workersErrs:
 			return nil, err
 		case err := <-inputErrs:
@@ -66,16 +63,18 @@ func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, 
 	}
 }
 
-func (g *Generator) initSprite(opts GenSpriteOptions, input drawInput) *image.RGBA {
-	width, height := input.dimensions()
-	spriteRect := image.Rect(0, 0, width*input.columns, height*input.rows)
-	return image.NewRGBA(spriteRect)
+type spriteDrawer struct {
+	sprite *image.RGBA
 }
 
-func (g *Generator) draw(sprite draw.Image, input drawInput) {
+func (d *spriteDrawer) draw(input drawInput) {
 	width, height := input.dimensions()
-	var offset int
+	if d.sprite == nil {
+		spriteRect := image.Rect(0, 0, width*input.columns, height*input.rows)
+		d.sprite = image.NewRGBA(spriteRect)
+	}
 
+	var offset int
 	if input.workerOutput.input.addBlackBars {
 		if diff := width - input.img.Bounds().Dx(); diff > 0 {
 			offset = diff / 2
@@ -84,5 +83,5 @@ func (g *Generator) draw(sprite draw.Image, input drawInput) {
 
 	sp := image.Pt(width*input.xposition+offset, height*input.yposition)
 	r := image.Rectangle{sp, sp.Add(image.Pt(width, height))}
-	draw.Draw(sprite, r, input.img, image.Pt(0, 0), draw.Src)
+	draw.Draw(d.sprite, r, input.img, image.Pt(0, 0), draw.Src)
 }
