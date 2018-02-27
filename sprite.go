@@ -84,9 +84,7 @@ func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 	opts.prefix = prefix
 	var wg sync.WaitGroup
 	inputs, workersAbort, imgs, workersErrs := g.startWorkers(opts, &wg)
-
 	inputAbort, inputErrs := g.startSendingInputs(opts, inputs, workersErrs)
-
 	sprite, err := g.drawSprite(opts, imgs, workersErrs, inputErrs)
 	if err != nil {
 		close(workersAbort)
@@ -94,7 +92,6 @@ func (g *Generator) GenSprite(opts GenSpriteOptions) ([]byte, error) {
 		wg.Wait()
 		return nil, err
 	}
-
 	var buf bytes.Buffer
 	err = jpeg.Encode(&buf, sprite, &jpeg.Options{Quality: opts.JPEGQuality})
 	return buf.Bytes(), err
