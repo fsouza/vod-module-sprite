@@ -17,6 +17,17 @@ import (
 	"time"
 )
 
+// VideoPackagerError represents an error reported by the video packager.
+type VideoPackagerError struct {
+	StatusCode   int
+	ResponseBody []byte
+}
+
+// Error returns the string representation of VideoPackagerError.
+func (err *VideoPackagerError) Error() string {
+	return fmt.Sprintf("invalid response from video-packager: %d - %s", err.StatusCode, err.ResponseBody)
+}
+
 type workerInput struct {
 	prefix       string
 	timecode     time.Duration
@@ -91,7 +102,10 @@ func (w *worker) process(input workerInput) (image.Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("invalid response from video-packager: %d - %s", resp.StatusCode, data)
+		return nil, &VideoPackagerError{
+			StatusCode:   resp.StatusCode,
+			ResponseBody: data,
+		}
 	}
 	return jpeg.Decode(resp.Body)
 }

@@ -187,32 +187,35 @@ func TestGenSpriteErrors(t *testing.T) {
 	cancel()
 
 	var tests = []struct {
-		name  string
-		input GenSpriteOptions
+		name    string
+		input   GenSpriteOptions
+		httpErr bool
 	}{
 		{
-			"invalid timecodes",
-			GenSpriteOptions{
+			name: "invalid timecodes",
+			input: GenSpriteOptions{
 				VideoURL: "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Start:    30 * time.Second,
 				End:      50 * time.Second,
 				Interval: 2 * time.Second,
 				Height:   72,
 			},
+			httpErr: true,
 		},
 		{
-			"invalid rendition",
-			GenSpriteOptions{
+			name: "invalid rendition",
+			input: GenSpriteOptions{
 				VideoURL: "/videos/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Start:    4 * time.Second,
 				End:      14 * time.Second,
 				Interval: 2 * time.Second,
 				Height:   72,
 			},
+			httpErr: true,
 		},
 		{
-			"context cancelation",
-			GenSpriteOptions{
+			name: "context cancelation",
+			input: GenSpriteOptions{
 				Context:  ctx,
 				VideoURL: "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Start:    4 * time.Second,
@@ -235,7 +238,13 @@ func TestGenSpriteErrors(t *testing.T) {
 				t.Error("got unexpected non-nil data")
 			}
 			if err == nil {
-				t.Error("got unexpected <nil> error")
+				t.Fatal("got unexpected <nil> error")
+			}
+			if test.httpErr {
+				_, ok := err.(*VideoPackagerError)
+				if !ok {
+					t.Errorf("expected %#v to be VideoPackagerError, but it wasn't", err)
+				}
 			}
 		})
 	}
