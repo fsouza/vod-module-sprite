@@ -24,13 +24,14 @@ func TestGenSprite(t *testing.T) {
 	)
 
 	var tests = []struct {
-		name         string
-		input        GenSpriteOptions
-		expectedFile string
+		name           string
+		input          GenSpriteOptions
+		failAtTimecode []int64
+		expectedFile   string
 	}{
 		{
-			"full sprite - vertical",
-			GenSpriteOptions{
+			name: "full sprite - vertical",
+			input: GenSpriteOptions{
 				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Start:       0,
 				End:         18 * time.Second,
@@ -38,11 +39,11 @@ func TestGenSprite(t *testing.T) {
 				Height:      72,
 				JPEGQuality: testJPEGQuality,
 			},
-			"sprite-full.jpg",
+			expectedFile: "sprite-full.jpg",
 		},
 		{
-			"full sprite - vertical with black bars",
-			GenSpriteOptions{
+			name: "full sprite - vertical with black bars",
+			input: GenSpriteOptions{
 				VideoURL:        "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Start:           0,
 				End:             18 * time.Second,
@@ -52,11 +53,11 @@ func TestGenSprite(t *testing.T) {
 				JPEGQuality:     testJPEGQuality,
 				KeepAspectRatio: true,
 			},
-			"sprite-full-blackbars.jpg",
+			expectedFile: "sprite-full-blackbars.jpg",
 		},
 		{
-			"full sprite - horizontal",
-			GenSpriteOptions{
+			name: "full sprite - horizontal",
+			input: GenSpriteOptions{
 				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Columns:     10,
 				Start:       0,
@@ -65,11 +66,11 @@ func TestGenSprite(t *testing.T) {
 				Height:      72,
 				JPEGQuality: testJPEGQuality,
 			},
-			"sprite-full-horizontal.jpg",
+			expectedFile: "sprite-full-horizontal.jpg",
 		},
 		{
-			"full sprite - horizontal with black bars",
-			GenSpriteOptions{
+			name: "full sprite - horizontal with black bars",
+			input: GenSpriteOptions{
 				VideoURL:        "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Columns:         10,
 				Start:           0,
@@ -80,11 +81,11 @@ func TestGenSprite(t *testing.T) {
 				JPEGQuality:     testJPEGQuality,
 				KeepAspectRatio: true,
 			},
-			"sprite-full-blackbars-horizontal.jpg",
+			expectedFile: "sprite-full-blackbars-horizontal.jpg",
 		},
 		{
-			"full sprite - 2 columns",
-			GenSpriteOptions{
+			name: "full sprite - 2 columns",
+			input: GenSpriteOptions{
 				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Columns:     2,
 				Start:       0,
@@ -93,11 +94,11 @@ func TestGenSprite(t *testing.T) {
 				Height:      72,
 				JPEGQuality: testJPEGQuality,
 			},
-			"sprite-full-2-columns.jpg",
+			expectedFile: "sprite-full-2-columns.jpg",
 		},
 		{
-			"partial sprite - just the start",
-			GenSpriteOptions{
+			name: "partial sprite - just the start",
+			input: GenSpriteOptions{
 				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Start:       0,
 				End:         14 * time.Second,
@@ -105,11 +106,11 @@ func TestGenSprite(t *testing.T) {
 				Height:      72,
 				JPEGQuality: testJPEGQuality,
 			},
-			"sprite-0-14000.jpg",
+			expectedFile: "sprite-0-14000.jpg",
 		},
 		{
-			"partial sprite - just the end",
-			GenSpriteOptions{
+			name: "partial sprite - just the end",
+			input: GenSpriteOptions{
 				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Start:       4 * time.Second,
 				End:         18 * time.Second,
@@ -117,11 +118,11 @@ func TestGenSprite(t *testing.T) {
 				Height:      72,
 				JPEGQuality: testJPEGQuality,
 			},
-			"sprite-4000.jpg",
+			expectedFile: "sprite-4000.jpg",
 		},
 		{
-			"partial sprite - middle - vertical",
-			GenSpriteOptions{
+			name: "partial sprite - middle - vertical",
+			input: GenSpriteOptions{
 				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Start:       4 * time.Second,
 				End:         14 * time.Second,
@@ -129,11 +130,11 @@ func TestGenSprite(t *testing.T) {
 				Height:      72,
 				JPEGQuality: testJPEGQuality,
 			},
-			"sprite-4000-14000.jpg",
+			expectedFile: "sprite-4000-14000.jpg",
 		},
 		{
-			"partial sprite - middle - horizontal",
-			GenSpriteOptions{
+			name: "partial sprite - middle - horizontal",
+			input: GenSpriteOptions{
 				VideoURL:    "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
 				Columns:     10,
 				Start:       4 * time.Second,
@@ -142,7 +143,21 @@ func TestGenSprite(t *testing.T) {
 				Height:      72,
 				JPEGQuality: testJPEGQuality,
 			},
-			"sprite-4000-14000-horizontal.jpg",
+			expectedFile: "sprite-4000-14000-horizontal.jpg",
+		},
+		{
+			name: "full sprite - vertical - ContinueOnError",
+			input: GenSpriteOptions{
+				VideoURL:        "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:           0,
+				End:             18 * time.Second,
+				Interval:        2 * time.Second,
+				Height:          72,
+				JPEGQuality:     testJPEGQuality,
+				ContinueOnError: true,
+			},
+			failAtTimecode: []int64{2000, 8000},
+			expectedFile:   "sprite-full-error.jpg",
 		},
 	}
 
@@ -153,6 +168,12 @@ func TestGenSprite(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			packager.failAtTimecode = test.failAtTimecode
+
+			expectedSprite, err := loadSpriteFromDisk(filepath.Join(spritesFolder, test.expectedFile))
+			if err != nil {
+				t.Fatal(err)
+			}
 			data, err := generator.GenSprite(test.input)
 			if err != nil {
 				t.Fatal(err)
@@ -160,10 +181,6 @@ func TestGenSprite(t *testing.T) {
 			sprite, err := jpeg.Decode(bytes.NewReader(data))
 			if err != nil {
 				t.Fatalf("GenSprite didn't generate a valid jpeg: %v", err)
-			}
-			expectedSprite, err := loadSpriteFromDisk(filepath.Join(spritesFolder, test.expectedFile))
-			if err != nil {
-				t.Fatal(err)
 			}
 			if sprite.Bounds() != expectedSprite.Bounds() {
 				t.Errorf("image bounds don't match\nwant %v\ngot  %v", expectedSprite.Bounds(), sprite.Bounds())
@@ -199,6 +216,18 @@ func TestGenSpriteErrors(t *testing.T) {
 				End:      50 * time.Second,
 				Interval: 2 * time.Second,
 				Height:   72,
+			},
+			httpErr: true,
+		},
+		{
+			name: "ignores ContinueOnErro for 400s",
+			input: GenSpriteOptions{
+				VideoURL:        "/video/2017/05/26/000000_1_CREDIT-SUISSE--O-_wg_360p.mp4",
+				Start:           30 * time.Second,
+				End:             50 * time.Second,
+				Interval:        2 * time.Second,
+				Height:          72,
+				ContinueOnError: true,
 			},
 			httpErr: true,
 		},

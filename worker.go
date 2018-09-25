@@ -29,11 +29,12 @@ func (err *VideoPackagerError) Error() string {
 }
 
 type workerInput struct {
-	prefix       string
-	timecode     time.Duration
-	width        uint
-	height       uint
-	addBlackBars bool
+	prefix          string
+	timecode        time.Duration
+	width           uint
+	height          uint
+	addBlackBars    bool
+	continueOnError bool
 }
 
 func (i *workerInput) url() string {
@@ -98,6 +99,9 @@ func (w *worker) process(input workerInput) (image.Image, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode >= http.StatusInternalServerError && input.continueOnError {
+			return nil, nil
+		}
 		data, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err

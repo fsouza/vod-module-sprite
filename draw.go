@@ -42,6 +42,9 @@ func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, 
 			if !ok {
 				return drawer.sprite, nil
 			}
+			if output.img == nil {
+				continue
+			}
 			pos := int((output.input.timecode - opts.Start) / opts.Interval)
 			ypos := pos / columns
 			xpos := pos - ypos*columns

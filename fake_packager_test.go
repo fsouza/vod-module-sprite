@@ -20,12 +20,13 @@ import (
 )
 
 type fakePackager struct {
-	server       *httptest.Server
-	folder       string
-	router       *mux.Router
-	prefixRegexp *regexp.Regexp
-	suffixRegexp *regexp.Regexp
-	o            sync.Once
+	server         *httptest.Server
+	folder         string
+	router         *mux.Router
+	prefixRegexp   *regexp.Regexp
+	suffixRegexp   *regexp.Regexp
+	o              sync.Once
+	failAtTimecode []int64
 }
 
 func startFakePackager(folder string) *fakePackager {
@@ -70,6 +71,10 @@ func (p *fakePackager) translate(videoURL string) (string, error) {
 func (p *fakePackager) genImage(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	timecode, _ := strconv.ParseInt(vars["timecode"], 10, 64)
+	if p.shouldFail(timecode) {
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
 	fileName := p.fileName(timecode)
 	if fileName == "" {
 		http.Error(w, "invalid timecode", http.StatusBadRequest)
@@ -83,6 +88,15 @@ func (p *fakePackager) genImage(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 	w.Header().Set("Content-Type", "image/jpeg")
 	io.Copy(w, f)
+}
+
+func (p *fakePackager) shouldFail(timecode int64) bool {
+	for _, t := range p.failAtTimecode {
+		if t == timecode {
+			return true
+		}
+	}
+	return false
 }
 
 func (p *fakePackager) fileName(timecode int64) string {
