@@ -1,0 +1,6 @@
+github.com/fsouza/vod-module-sprite v1.3.0 h1:6+sl0XiarAGNm1ddtnJX6LSgdLWq1oAPE5K2apsC4Vk=
+github.com/fsouza/vod-module-sprite v1.3.0/go.mod h1:iXgctcR8aP3HnaZ2FBhd1X0rLdm8NT3jD7Eak0XwflI=
+github.com/gorilla/context v1.1.1/go.mod h1:kBGZzfjB9CEq2AlWe17Uuf7NDRt0dE0s8S51q0aT7Yg=
+github.com/gorilla/mux v1.6.2/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
+github.com/hashicorp/go-cleanhttp v0.5.0 h1:wvCrVc9TjDls6+YGAF2hAifE1E5U1+b4tH6KdvN3Gig=
+github.com/hashicorp/go-cleanhttp v0.5.0/go.mod h1:JpRdi6/HCYpAwUzNwuwqhbovhLtngrth3wmdIIUrZ80=
