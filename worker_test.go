@@ -10,6 +10,7 @@ import (
 )
 
 func TestWorkerInputURL(t *testing.T) {
+	t.Parallel()
 	var tests = []struct {
 		name     string
 		input    workerInput
@@ -75,6 +76,7 @@ func TestWorkerInputURL(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			url := test.input.url()
 			if url != test.expected {
 				t.Errorf("wrong url returned\nwant %q\ngot  %q", test.expected, url)
@@ -84,6 +86,7 @@ func TestWorkerInputURL(t *testing.T) {
 }
 
 func TestVideoPackagerError(t *testing.T) {
+	t.Parallel()
 	var err error = &VideoPackagerError{
 		StatusCode:   400,
 		ResponseBody: []byte("nope"),

@@ -18,6 +18,7 @@ import (
 )
 
 func TestGenSprite(t *testing.T) {
+	t.Parallel()
 	const (
 		testJPEGQuality = 100
 		maxDiff         = int64(11e5)
@@ -161,13 +162,13 @@ func TestGenSprite(t *testing.T) {
 		},
 	}
 
-	const spritesFolder = "testdata"
-	packager := startFakePackager(spritesFolder)
-	defer packager.stop()
-	generator := Generator{Translator: packager.translate, MaxWorkers: 4}
-
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			const spritesFolder = "testdata"
+			packager := startFakePackager(spritesFolder)
+			defer packager.stop()
+			generator := Generator{Translator: packager.translate, MaxWorkers: 4}
 			packager.failAtTimecode = test.failAtTimecode
 
 			expectedSprite, err := loadSpriteFromDisk(filepath.Join(spritesFolder, test.expectedFile))
@@ -200,6 +201,7 @@ func TestGenSprite(t *testing.T) {
 }
 
 func TestGenSpriteErrors(t *testing.T) {
+	t.Parallel()
 	ctx, cancel := context.WithCancel(context.TODO())
 	cancel()
 
@@ -262,6 +264,7 @@ func TestGenSpriteErrors(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			data, err := generator.GenSprite(test.input)
 			if data != nil {
 				t.Error("got unexpected non-nil data")
@@ -280,6 +283,7 @@ func TestGenSpriteErrors(t *testing.T) {
 }
 
 func TestGenSpriteOptionsN(t *testing.T) {
+	t.Parallel()
 	var tests = []struct {
 		name     string
 		input    GenSpriteOptions
@@ -313,6 +317,7 @@ func TestGenSpriteOptionsN(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			n := test.input.n()
 			if n != test.expected {
 				t.Errorf("wrong value\nwant %d\ngot  %d", test.expected, n)
