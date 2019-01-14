@@ -74,7 +74,9 @@ func TestWorkerInputURL(t *testing.T) {
 			"https://video-packager.example.com/video/t/something/thumb-2000.jpg",
 		},
 	}
+
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			url := test.input.url()

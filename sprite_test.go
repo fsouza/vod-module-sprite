@@ -163,6 +163,7 @@ func TestGenSprite(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			const spritesFolder = "testdata"
@@ -257,13 +258,13 @@ func TestGenSpriteErrors(t *testing.T) {
 		},
 	}
 
-	const spritesFolder = "testdata"
-	packager := startFakePackager(spritesFolder)
-	defer packager.stop()
-	generator := Generator{Translator: packager.translate, MaxWorkers: 32}
-
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			const spritesFolder = "testdata"
+			packager := startFakePackager(spritesFolder)
+			defer packager.stop()
+			generator := Generator{Translator: packager.translate, MaxWorkers: 32}
 			t.Parallel()
 			data, err := generator.GenSprite(test.input)
 			if data != nil {
