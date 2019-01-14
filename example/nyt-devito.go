@@ -24,6 +24,7 @@ func main() {
 	interval := flag.Duration("interval", 2*time.Second, "interval between captures")
 	start := flag.Duration("start", 0, "timecode for the starting point")
 	end := flag.Duration("end", 2*time.Minute, "timecode for the end point")
+	keepRatio := flag.Bool("keep-ratio", false, "keep aspect ratio?")
 	flag.Parse()
 
 	generator := sprite.Generator{
@@ -31,13 +32,14 @@ func main() {
 		MaxWorkers: *maxWorkers,
 	}
 	data, err := generator.GenSprite(sprite.GenSpriteOptions{
-		VideoURL:    *url,
-		Width:       *width,
-		Height:      *height,
-		Start:       *start,
-		End:         *end,
-		Interval:    *interval,
-		JPEGQuality: 80,
+		VideoURL:        *url,
+		Width:           *width,
+		Height:          *height,
+		Start:           *start,
+		End:             *end,
+		Interval:        *interval,
+		KeepAspectRatio: *keepRatio,
+		JPEGQuality:     80,
 	})
 	if err != nil {
 		log.Fatalf("failed to generate sprite: %v", err)
