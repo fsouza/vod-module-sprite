@@ -34,6 +34,8 @@ Usage of ./nyt-devito:
     	height of each sprite item - 0 for keeping the aspect ratio/source
   -interval duration
     	interval between captures (default 2s)
+  -keep-ratio
+    	keep aspect ratio?
   -max-workers uint
     	maximum number of workers to be used for thumbnail generation (default 32)
   -o string
