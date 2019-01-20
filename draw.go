@@ -38,34 +38,30 @@ func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, 
 
 	for {
 		select {
+		case output, ok := <-imgs:
+			if !ok {
+				return drawer.sprite, nil
+			}
+			if output.img == nil {
+				continue
+			}
+			pos := int((output.input.timecode - opts.Start) / opts.Interval)
+			ypos := pos / columns
+			xpos := pos - ypos*columns
+			input := drawInput{
+				workerOutput: output,
+				xposition:    xpos,
+				yposition:    ypos,
+				rows:         rows,
+				columns:      columns,
+			}
+			drawer.draw(input)
 		case err := <-workersErrs:
 			return nil, err
 		case err := <-inputErrs:
 			return nil, err
 		case <-opts.Context.Done():
 			return nil, opts.Context.Err()
-		default:
-			select {
-			case output, ok := <-imgs:
-				if !ok {
-					return drawer.sprite, nil
-				}
-				if output.img == nil {
-					continue
-				}
-				pos := int((output.input.timecode - opts.Start) / opts.Interval)
-				ypos := pos / columns
-				xpos := pos - ypos*columns
-				input := drawInput{
-					workerOutput: output,
-					xposition:    xpos,
-					yposition:    ypos,
-					rows:         rows,
-					columns:      columns,
-				}
-				drawer.draw(input)
-			default:
-			}
 		}
 	}
 }
