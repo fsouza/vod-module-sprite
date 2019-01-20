@@ -40,7 +40,14 @@ func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, 
 		select {
 		case output, ok := <-imgs:
 			if !ok {
-				return drawer.sprite, nil
+				select {
+				// check the for worker errors just one more
+				// time, just in case all workers have failed
+				case err := <-workersErrs:
+					return nil, err
+				default:
+					return drawer.sprite, nil
+				}
 			}
 			if output.img == nil {
 				continue
