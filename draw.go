@@ -27,7 +27,7 @@ func (i *drawInput) dimensions() (width, height int) {
 	return width, height
 }
 
-func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, workersErrs <-chan error, inputErrs <-chan error) (image.Image, error) {
+func (g *Generator) drawSprite(opts GenSpriteOptions, imgs <-chan workerOutput, workersErrs <-chan error, inputErrs <-chan error) (*image.RGBA, error) {
 	var drawer spriteDrawer
 
 	columns := int(opts.Columns)
