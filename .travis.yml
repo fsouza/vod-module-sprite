@@ -1,7 +1,12 @@
 language: go
 sudo: false
+cache:
+  directories:
+    - $GOPATH/pkg
+    - $GOPATH/bin
 install:
-  - GO111MODULE=off go get -v github.com/golang/dep/cmd/dep honnef.co/go/tools/cmd/staticcheck
+  - if [[ $DEP_TOOL == "dep" ]]; then GO111MODULE=off go get -v github.com/golang/dep/cmd/dep honnef.co/go/tools/cmd/staticcheck; fi
+  - if [[ $DEP_TOOL == "mod" ]]; go get honnef.co/go/tools/cmd/staticcheck@master; fi
   - if [[ $DEP_TOOL == "dep" ]]; then dep ensure -v; fi
   - if [[ $DEP_TOOL == "mod" ]]; then go mod download; fi
 script:
