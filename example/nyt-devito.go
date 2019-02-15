@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fsouza/vod-module-sprite"
+	sprite "github.com/fsouza/vod-module-sprite"
 )
 
 func main() {
