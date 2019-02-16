@@ -4,7 +4,7 @@
 
 Library for generating sprites from
 [nginx-vod-module](https://github.com/kaltura/nginx-vod-module) thumbnails. It
-leverages nginx-vod-module's thumbnail generation capabilities and stitch the
+leverages nginx-vod-module's thumbnail generation capabilities and stitches
 thumbs together to generate a vertical sprite.
 
 ## Example
