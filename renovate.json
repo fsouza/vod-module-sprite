@@ -5,7 +5,7 @@
   "gomod": {
     "ignorePaths": [
       "**/example/**"
-    ]
+    ],
+    "gomodTidy": true
   },
-  "gomodTidy": true
 }
