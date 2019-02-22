@@ -3,7 +3,7 @@
     "config:base"
   ],
   "gomod": {
-    "fileMatch": ["^go.mod$"]
+    "ignorePaths": ["example/**"]
   },
   "gomodTidy": true
 }
