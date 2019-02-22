@@ -2,8 +2,5 @@
   "extends": [
     "config:base"
   ],
-  "gomod": {
-    "fileMatch": ["^go.mod$"]
-  },
   "gomodTidy": true
 }
