@@ -10,6 +10,7 @@ after_success: bash <(curl -s https://codecov.io/bash)
 env:
   global:
     - GO111MODULE=on
+    - GOPROXY=https://gocenter.io
 go:
   - 1.11.x
   - 1.12.x
