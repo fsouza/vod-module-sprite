@@ -4,6 +4,5 @@
   ],
   "gomod": {
     "ignorePaths": ["example/**"]
-  },
-  "gomodTidy": true
+  }
 }
