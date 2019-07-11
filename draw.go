@@ -21,7 +21,7 @@ type drawInput struct {
 func (i *drawInput) dimensions() (width, height int) {
 	width = i.img.Bounds().Dx()
 	height = i.img.Bounds().Dy()
-	if i.workerOutput.input.addBlackBars {
+	if i.workerOutput.input.letterbox {
 		width = int(i.workerOutput.input.width)
 	}
 	return width, height
@@ -85,7 +85,7 @@ func (d *spriteDrawer) draw(input drawInput) {
 	}
 
 	var offset int
-	if input.workerOutput.input.addBlackBars {
+	if input.workerOutput.input.letterbox {
 		if diff := width - input.img.Bounds().Dx(); diff > 0 {
 			offset = diff / 2
 		}

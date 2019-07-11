@@ -24,7 +24,7 @@ func TestGenSprite(t *testing.T) {
 		maxDiff         = int64(11e5)
 	)
 
-	var tests = []struct {
+	tests := []struct {
 		name           string
 		input          GenSpriteOptions
 		failAtTimecode []int64
@@ -206,7 +206,7 @@ func TestGenSpriteErrors(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	cancel()
 
-	var tests = []struct {
+	tests := []struct {
 		name    string
 		input   GenSpriteOptions
 		httpErr bool
@@ -285,7 +285,7 @@ func TestGenSpriteErrors(t *testing.T) {
 
 func TestGenSpriteOptionsN(t *testing.T) {
 	t.Parallel()
-	var tests = []struct {
+	tests := []struct {
 		name     string
 		input    GenSpriteOptions
 		expected int

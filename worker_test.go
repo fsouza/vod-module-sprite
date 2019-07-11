@@ -11,7 +11,7 @@ import (
 
 func TestWorkerInputURL(t *testing.T) {
 	t.Parallel()
-	var tests = []struct {
+	tests := []struct {
 		name     string
 		input    workerInput
 		expected string
@@ -29,11 +29,11 @@ func TestWorkerInputURL(t *testing.T) {
 		{
 			"duration, width and height + black bars",
 			workerInput{
-				prefix:       "https://video-packager.example.com/video/t/something/",
-				width:        128,
-				height:       72,
-				timecode:     2 * time.Second,
-				addBlackBars: true,
+				prefix:    "https://video-packager.example.com/video/t/something/",
+				width:     128,
+				height:    72,
+				timecode:  2 * time.Second,
+				letterbox: true,
 			},
 			"https://video-packager.example.com/video/t/something/thumb-2000-h72.jpg",
 		},

@@ -33,14 +33,14 @@ type workerInput struct {
 	timecode        time.Duration
 	width           uint
 	height          uint
-	addBlackBars    bool
+	letterbox       bool
 	continueOnError bool
 }
 
 func (i *workerInput) url() string {
 	milli := i.timecode.Truncate(time.Millisecond)
 	suffixParts := []string{"thumb", strconv.FormatInt(int64(milli/time.Millisecond), 10)}
-	if i.width > 0 && !i.addBlackBars {
+	if i.width > 0 && !i.letterbox {
 		suffixParts = append(suffixParts, fmt.Sprintf("w%d", i.width))
 	}
 	if i.height > 0 {

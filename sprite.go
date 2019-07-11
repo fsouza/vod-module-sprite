@@ -145,7 +145,7 @@ func (g *Generator) startSendingInputs(opts GenSpriteOptions, inputs chan<- work
 				width:           opts.Width,
 				height:          opts.Height,
 				timecode:        timecode,
-				addBlackBars:    blackBars,
+				letterbox:       blackBars,
 				continueOnError: opts.ContinueOnError,
 			}
 
