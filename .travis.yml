@@ -6,7 +6,7 @@ install:
   - go mod download
 script:
   - golangci-lint run --enable-all -D lll -D errcheck
-  - go test -race -coverprofile=coverage.txt -covermode=atomic
+  - go test -race -coverprofile=coverage.txt -covermode=atomic -count 20
 after_success: bash <(curl -s https://codecov.io/bash)
 env:
   global:
