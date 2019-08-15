@@ -21,6 +21,8 @@ jobs:
 
       - name: run-linter
         uses: docker://golangci/golangci-lint
+        env:
+          GOROOT: /usr/local/go
         with:
           entrypoint: golangci-lint
           args: run --enable-all -D lll -D errcheck
