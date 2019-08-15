@@ -21,7 +21,9 @@ jobs:
 
       - name: run-linter
         uses: docker://golangci/golangci-lint
-        run: golangci-lint run --enable-all -D lll -D errcheck
+        with:
+          entrypoint: golangci-lint
+          args: run --enable-all -D lll -D errcheck
 
       - name: run-tests
         run: go test -race -coverprofile=coverage.txt -covermode=atomic -count 20
