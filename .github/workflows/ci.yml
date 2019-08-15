@@ -1,0 +1,27 @@
+name: Go
+on: [push]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        id: go
+        with:
+          version: 1.12.8
+
+      - name: Check out code
+        uses: actions/checkout@master
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Install golanci-lint
+        run: curl https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | BINDIR=$(go env GOPATH)/bin sh
+
+      - name: Run tests
+        run: go test -race -coverprofile=coverage.txt -covermode=atomic -count 20
+
+      - name: Run golangci-lint
+        run: golangci-lint run --enable-all -D lll -D errcheck
