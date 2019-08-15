@@ -5,25 +5,28 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go
+      - name: go-setup
         uses: actions/setup-go@v1
         id: go
         with:
           version: 1.12.8
 
-      - name: Check out code
+      - name: git-checkout
         uses: actions/checkout@master
 
-      - name: Get dependencies
+      - name: go-mod-download
         run: go mod download
         env:
           GOPROXY: https://proxy.golang.org
 
-      - name: Install golanci-lint
+      - name: install-golanci-lint
         run: curl https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | BINDIR=$(go env GOPATH)/bin sh
 
-      - name: Run tests
+      - name: run-linter
+        run: $(go env GOPATH)/bin/golangci-lint run --enable-all -D lll -D errcheck
+
+      - name: run-tests
         run: go test -race -coverprofile=coverage.txt -covermode=atomic -count 20
 
-      - name: Run golangci-lint
-        run: $(go env GOPATH)/bin/golangci-lint run --enable-all -D lll -D errcheck
+      - name: report-coverage
+        run: bash <(curl -s https://codecov.io/bash)
