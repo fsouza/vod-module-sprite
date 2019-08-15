@@ -6,7 +6,7 @@ jobs:
       matrix:
         go_version: [1.11.13, 1.12.8, 1.13beta1]
 
-    name: Build
+    name: Build (Go ${{ matrix.go_version }})
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v1
@@ -20,7 +20,9 @@ jobs:
           GOPROXY: https://proxy.golang.org
 
       - name: install-golanci-lint
-        run: curl https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | BINDIR=$(go env GOPATH)/bin sh
+        run: go get github.com/golangci/golangci-lint/cmd/golangci-lint@master
+        env:
+          GOPROXY: https://proxy.golang.org
 
       - name: run-linter
         run: $(go env GOPATH)/bin/golangci-lint run --enable-all -D lll -D errcheck
