@@ -19,13 +19,9 @@ jobs:
         env:
           GOPROXY: https://proxy.golang.org
 
-      - name: install-golanci-lint
-        run: go get github.com/golangci/golangci-lint/cmd/golangci-lint@master
-        env:
-          GOPROXY: https://proxy.golang.org
-
       - name: run-linter
-        run: $(go env GOPATH)/bin/golangci-lint run --enable-all -D lll -D errcheck
+        uses: docker://golangci/golangci-lint
+        run: golangci-lint run --enable-all -D lll -D errcheck
 
       - name: run-tests
         run: go test -race -coverprofile=coverage.txt -covermode=atomic -count 20
