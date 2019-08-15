@@ -27,6 +27,3 @@ jobs:
 
       - name: run-tests
         run: go test -race -coverprofile=coverage.txt -covermode=atomic -count 20
-
-      - name: report-coverage
-        run: bash <(curl -s https://codecov.io/bash)
