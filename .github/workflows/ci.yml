@@ -28,4 +28,4 @@ jobs:
           args: run --enable-all -D lll -D errcheck
 
       - name: run-tests
-        run: go test -race -coverprofile=coverage.txt -covermode=atomic -count 20
+        run: go test -mod readonly -race -coverprofile=coverage.txt -covermode=atomic -count 20
