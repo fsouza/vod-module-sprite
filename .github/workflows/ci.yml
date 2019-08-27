@@ -12,7 +12,7 @@ jobs:
       - uses: actions/setup-go@v1.0.2
         id: go
         with:
-          version: ${{ matrix.go_version }}
+          go-version: ${{ matrix.go_version }}
 
       - uses: actions/checkout@v1.0.0
 
