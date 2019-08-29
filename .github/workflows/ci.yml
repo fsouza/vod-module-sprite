@@ -12,7 +12,10 @@ jobs:
   build:
     strategy:
       matrix:
-        go_version: [1.11.x, 1.12.x, 1.13rc1]
+        go_version:
+          - 1.11.x
+          - 1.12.x
+          - 1.13rc2
 
     name: Build (Go ${{ matrix.go_version }})
     runs-on: ubuntu-latest
