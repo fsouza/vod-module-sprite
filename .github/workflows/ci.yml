@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - "*"
+      - master
   pull_request:
     branches:
       - master
@@ -25,6 +25,8 @@ jobs:
           go-version: ${{ matrix.go_version }}
 
       - uses: actions/checkout@v1.0.0
+
+      - run: go version
 
       - name: go-mod-download
         run: go mod download
