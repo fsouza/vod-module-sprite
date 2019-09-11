@@ -17,6 +17,7 @@ import (
 	"time"
 )
 
+// nolint:funlen
 func TestGenSprite(t *testing.T) {
 	t.Parallel()
 	const (
@@ -201,6 +202,7 @@ func TestGenSprite(t *testing.T) {
 	}
 }
 
+// nolint:funlen
 func TestGenSpriteErrors(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithCancel(context.TODO())
