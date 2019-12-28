@@ -20,12 +20,12 @@ jobs:
     name: Build (Go ${{ matrix.go_version }})
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v1.0.2
+      - uses: actions/setup-go@master
         id: go
         with:
           go-version: ${{ matrix.go_version }}
 
-      - uses: actions/checkout@v1.0.0
+      - uses: actions/checkout@master
 
       - name: install deps
         run: |
