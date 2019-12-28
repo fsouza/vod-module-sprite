@@ -16,9 +16,12 @@ jobs:
           - 1.12.x
           - 1.13.x
           - 1.14.x
+        os:
+          - macos
+          - ubuntu
 
-    name: Build (Go ${{ matrix.go_version }})
-    runs-on: ubuntu-latest
+    name: Build (${{ matrix.os }}/go-${{ matrix.go_version }})
+    runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/setup-go@master
         id: go
