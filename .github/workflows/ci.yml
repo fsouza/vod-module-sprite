@@ -13,9 +13,9 @@ jobs:
     strategy:
       matrix:
         go_version:
-          - 1.12.x
-          - 1.13.x
-          - 1.14.x
+          - "^1.12"
+          - "^1.13"
+          - "^1.14.0-rc"
         os:
           - macos
           - ubuntu
@@ -26,6 +26,7 @@ jobs:
       - uses: actions/setup-go@master
         id: go
         with:
+          stable: false
           go-version: ${{ matrix.go_version }}
 
       - uses: actions/checkout@master
