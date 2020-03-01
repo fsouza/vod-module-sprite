@@ -39,6 +39,7 @@ jobs:
       - name: install deps
         run: |
           go env
+          echo $PATH
           go mod download
           (
             cd /tmp
