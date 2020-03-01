@@ -13,9 +13,8 @@ jobs:
     strategy:
       matrix:
         go_version:
-          - 1.12
-          - 1.13
-          - 1.14.0-rc
+          - ~1.13
+          - ~1.14
         os:
           - macos
           - ubuntu
@@ -38,8 +37,6 @@ jobs:
             cd /tmp
             env GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint@latest
           )
-        env:
-          GOPROXY: https://proxy.golang.org
 
       - name: run-linter
         run: |
