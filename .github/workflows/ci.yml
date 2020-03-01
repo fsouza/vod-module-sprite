@@ -38,6 +38,7 @@ jobs:
 
       - name: install deps
         run: |
+          go env
           go mod download
           (
             cd /tmp
