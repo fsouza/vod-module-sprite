@@ -24,6 +24,8 @@ jobs:
     steps:
       - uses: actions/setup-go@master
         id: go
+        env:
+          GOBIN: /usr/local/bin
         with:
           stable: false
           go-version: ${{ matrix.go_version }}
@@ -39,8 +41,7 @@ jobs:
           )
 
       - name: run-linter
-        run: |
-          $(go env GOPATH)/bin/golangci-lint run
+        run: golangci-lint run
         env:
           GOPROXY: off
           GOFLAGS: -mod=readonly
