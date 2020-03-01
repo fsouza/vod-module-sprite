@@ -24,8 +24,6 @@ jobs:
     steps:
       - uses: actions/setup-go@master
         id: go
-        env:
-          GOBIN: /usr/local/bin
         with:
           stable: false
           go-version: ${{ matrix.go_version }}
@@ -34,13 +32,13 @@ jobs:
 
       - name: install deps
         run: |
-          echo $PATH
-          echo $GOBIN
           go mod download
           (
             cd /tmp
             env GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint@latest
           )
+        env:
+          GOBIN: /usr/local/bin
 
       - name: run-linter
         run: golangci-lint run
