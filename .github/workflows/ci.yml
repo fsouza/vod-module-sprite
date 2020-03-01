@@ -32,7 +32,7 @@ jobs:
         run: |
           export GOBIN=$(go env GOPATH)/bin
           echo "::set-env name=GOBIN::$(go env GOBIN)"
-          echo "::add-path::$(go env GOBIN)/bin"
+          echo "::add-path::$(go env GOBIN)"
 
       - uses: actions/checkout@master
 
@@ -47,11 +47,7 @@ jobs:
           )
 
       - name: run-linter
-        run: |
-          set -x
-          echo ${PATH}
-          echo ${GOBIN}
-          golangci-lint run
+        run: golangci-lint run
         env:
           GOPROXY: off
           GOFLAGS: -mod=readonly
