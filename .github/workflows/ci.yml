@@ -47,7 +47,11 @@ jobs:
           )
 
       - name: run-linter
-        run: golangci-lint run
+        run: |
+          set -x
+          echo ${PATH}
+          echo ${GOBIN}
+          golangci-lint run
         env:
           GOPROXY: off
           GOFLAGS: -mod=readonly
