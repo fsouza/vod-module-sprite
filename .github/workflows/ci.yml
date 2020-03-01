@@ -22,7 +22,7 @@ jobs:
     name: Build (${{ matrix.os }}/go-${{ matrix.go_version }})
     runs-on: ${{ matrix.os }}-latest
     steps:
-      - uses: fsouza/setup-go@add-gobin
+      - uses: fsouza/setup-go@debug-gobin
         id: go
         with:
           stable: false
