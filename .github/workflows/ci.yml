@@ -30,6 +30,6 @@ jobs:
 
       - run: go build
 
-      - run: go get github.com/fsouza/hello@latest
+      - run: go get -x github.com/fsouza/hello@latest
         env:
           GO111MODULE: on
