@@ -13,11 +13,12 @@ jobs:
     strategy:
       matrix:
         go_version:
-          - 1.13
-          - 1.14
+          - ^1.13
+          - ^1.14
         os:
           - macos
           - ubuntu
+          - windows
 
     name: Build (${{ matrix.os }}/go-${{ matrix.go_version }})
     runs-on: ${{ matrix.os }}-latest
@@ -25,32 +26,8 @@ jobs:
       - uses: actions/setup-go@master
         id: go
         with:
-          stable: false
           go-version: ${{ matrix.go_version }}
-
-      - name: setup GOBIN
-        run: |
-          export GOBIN=$(go env GOPATH)/bin
-          echo "::set-env name=GOBIN::$(go env GOBIN)"
-          echo "::add-path::$(go env GOBIN)"
 
       - uses: actions/checkout@master
 
-      - name: install deps
-        run: |
-          go mod download
-          (
-            cd /tmp
-            env GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-          )
-
-      - name: run-linter
-        run: golangci-lint run
-        env:
-          GOPROXY: off
-          GOFLAGS: -mod=readonly
-
-      - name: run-tests
-        run: go test -mod readonly -race -coverprofile=coverage.txt -covermode=atomic -count 20
-        env:
-          GOPROXY: off
+      - run: go build
