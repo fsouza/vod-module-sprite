@@ -30,6 +30,6 @@ jobs:
 
       - run: go build
 
-      - run: go get github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - run: go get github.com/fsouza/hello@latest
         env:
           GO111MODULE: on
