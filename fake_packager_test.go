@@ -63,6 +63,7 @@ func (p *fakePackager) translate(videoURL string) (string, error) {
 	path := p.prefixRegexp.ReplaceAllString(vurl.Path, "/thumbs/")
 	path = p.suffixRegexp.ReplaceAllString(path, "")
 	if path == vurl.Path {
+		//nolint:goerr113
 		return "", errors.New("invalid videoURL")
 	}
 	return p.server.URL + path, nil
