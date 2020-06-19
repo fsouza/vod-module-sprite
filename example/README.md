@@ -2,7 +2,7 @@
 
 This folder presents an example of vod-module-sprite in conjunction with
 [NYTimes' sample
-configuration](https://github.com/NYTimes/nginx-vod-module-docker/tree/master/examples)
+configuration](https://github.com/NYTimes/nginx-vod-module-docker/tree/HEAD/examples)
 for nginx-vod-module.
 
 It provides a command line utility that uses vod-module-sprite to generate
@@ -12,7 +12,7 @@ sprites and save them to a file in the local disk.
 
 Make sure you have nginx-vod-module running on port 3030, as documented in
 nginx-vod-module-docker example:
-https://github.com/NYTimes/nginx-vod-module-docker/tree/master/examples
+https://github.com/NYTimes/nginx-vod-module-docker/tree/HEAD/examples
 
 Once nginx-vod-module is running, compile and run
 [nyt-devito.go](/example/nyt-devito.go):

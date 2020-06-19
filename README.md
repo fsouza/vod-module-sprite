@@ -11,4 +11,4 @@ thumbs together to generate a vertical sprite.
 
 Check the [example folder](/example) for an example of sprite generation integrated with
 [NYTimes' nginx-vod-module-docker sample
-config](https://github.com/NYTimes/nginx-vod-module-docker/tree/master/examples).
+config](https://github.com/NYTimes/nginx-vod-module-docker/tree/HEAD/examples).
