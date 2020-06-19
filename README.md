@@ -1,6 +1,6 @@
 # vod-module-sprite
 
-[![Build Status](https://github.com/fsouza/vod-module-sprite/workflows/Build/badge.svg)](https://github.com/fsouza/vod-module-sprite/actions?query=branch:master+workflow:Build)
+[![Build Status](https://github.com/fsouza/vod-module-sprite/workflows/Build/badge.svg)](https://github.com/fsouza/vod-module-sprite/actions?query=branch:main+workflow:Build)
 
 Library for generating sprites from
 [nginx-vod-module](https://github.com/kaltura/nginx-vod-module) thumbnails. It
