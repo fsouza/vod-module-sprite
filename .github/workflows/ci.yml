@@ -22,7 +22,7 @@ jobs:
     name: Build (${{ matrix.os }}/go-${{ matrix.go_version }})
     runs-on: ${{ matrix.os }}-latest
     steps:
-      - uses: actions/setup-go@v2.0.3
+      - uses: actions/setup-go@v2.1.0
         id: go
         with:
           stable: false
