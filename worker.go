@@ -68,7 +68,7 @@ func (w *worker) Run(ctx context.Context, inputs <-chan workerInput, abort <-cha
 				return
 			}
 
-			img, err := w.process(input)
+			img, err := w.process(ctx, input)
 			if err != nil {
 				errs <- err
 				return
@@ -91,9 +91,13 @@ func (w *worker) Run(ctx context.Context, inputs <-chan workerInput, abort <-cha
 	}
 }
 
-func (w *worker) process(input workerInput) (image.Image, error) {
+func (w *worker) process(ctx context.Context, input workerInput) (image.Image, error) {
 	thumbURL := input.url()
-	resp, err := w.client.Get(thumbURL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, thumbURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := w.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
