@@ -7,6 +7,7 @@ package sprite
 import (
 	"bytes"
 	"context"
+	"errors"
 	"image"
 	"image/jpeg"
 	"io/ioutil"
@@ -276,8 +277,8 @@ func TestGenSpriteErrors(t *testing.T) {
 				t.Fatal("got unexpected <nil> error")
 			}
 			if test.httpErr {
-				_, ok := err.(*VideoPackagerError)
-				if !ok {
+				var verr *VideoPackagerError
+				if !errors.As(err, &verr) {
 					t.Errorf("expected %#v to be VideoPackagerError, but it wasn't", err)
 				}
 			}
