@@ -1,12 +1,5 @@
 linters:
-  enable-all: true
-  disable:
-    - errcheck
-    - exhaustivestruct
-    - gofumpt
-    - gomnd
-    - lll
-    - nlreturn
-    - testpackage
-    - wrapcheck
-    - wsl
+  disable-all: true
+  enable:
+    - gofmt
+    - goimports
