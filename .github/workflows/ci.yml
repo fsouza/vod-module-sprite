@@ -13,8 +13,8 @@ jobs:
     strategy:
       matrix:
         go_version:
-          - 1.14
           - 1.15
+          - 1.16
         os:
           - macos
           - ubuntu
@@ -49,10 +49,10 @@ jobs:
         id: go
         with:
           stable: false
-          go-version: 1.x
+          go-version: 1.16
 
       - run: |
-          GO111MODULE=on go get honnef.co/go/tools/cmd/staticcheck@master
+          go install honnef.co/go/tools/cmd/staticcheck@master
 
       - name: get staticcheck version
         id: get-staticcheck-version

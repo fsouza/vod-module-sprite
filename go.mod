@@ -5,4 +5,4 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2
 )
 
-go 1.14
+go 1.15
