@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-// nolint:funlen
 func TestWorkerInputURL(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
